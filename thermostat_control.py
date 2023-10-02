@@ -35,6 +35,7 @@ def main():
 
         if data is not None:
             remote_data = parse_message(data)
+            print(remote_data)
             update_temp_db(conn, remote_data)
             operational_state, action = determine_state(remote_data[2], current_state)
             run_action(action)
