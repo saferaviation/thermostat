@@ -49,12 +49,16 @@ def main():
 
 def determine_state(temp, current_state):
     if (current_state == 'heat on') & (temp < config.TEMP_TARGET):
+        print('temp below target, heat remaining on')
         return ['heat on','no action']
     elif (current_state == 'heat on') & (temp >= config.TEMP_TARGET):
+        print('temp above target, heat turning off')
         return ['heat off', 'heat off']
     elif (current_state == 'heat off') & (temp < config.TEMP_TARGET):
+        print('temp below target, heat turning on')
         return ['heat on', 'heat on']
     elif (current_state == 'heat off') & (temp >= config.TEMP_TARGET):
+        print('temp above target, heat remaining off')
         return ['heat off','no action']
     else:
         return ['unknown state', 'heat off']
