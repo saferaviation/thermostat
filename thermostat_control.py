@@ -18,20 +18,30 @@ server_socket.listen()
 
 print(f"Listening on {HOST}:{PORT}")
 
-current_state = 'initializing'
+
 def main():
+
+    current_state = 'initializing'
+
+    setup()
+    conn = create_db_connection()
+
     while True:
         # Accept a client connection
         client_socket, client_address = server_socket.accept()
         print(f"Accepted connection from {client_address}")
         data = client_socket.recv(1024).decode('utf-8')
 
-        if data != None:
+        if data is not None:
             remote_data = parse_message(data)
-            operational_state, action = determine_state(remote_data, current_state)
+            update_temp_db(conn, remote_data)
+            operational_state, action = determine_state(remote_data[2], current_state)
             run_action(action)
             current_state = operational_state
             client_socket.close()
+        else:
+            print('no data received')
+
 
 def determine_state(remote_data, current_state):
     if (current_state == 'heat on') & (remote_data.temp < config.TEMP_TARGET):
@@ -45,8 +55,11 @@ def determine_state(remote_data, current_state):
     else:
         return 'heat off'
 
+
 def parse_message(data):
-    return {}
+    [timestamp, sensor, value, units, pk] = data.split(',')
+    return [timestamp, sensor, value, units, pk]
+
 
 def run_action(action):
     if action == 'heat on':
@@ -56,23 +69,29 @@ def run_action(action):
     elif action == 'no action':
         pass
 
+
 def heat_on():
     GPIO.output(config.RELAY_PIN, True)
+
 
 def heat_off():
     GPIO.output(config.RELAY_PIN, False)
 
+
 def setup():
     GPIO.setmode(GPIO.BOARD)
     GPIO.setup(config.RELAY_PIN, GPIO.OUT)
+    heat_off()
+
 
 def create_db_connection():
     conn = None
     try:
         conn = sqlite3.connect(config.DB_PATH)
-    except Error as e:
-        print(e)
+    except:
+        print('error connecting to db')
     return conn
+
 
 def update_temp_db(conn, temp):
     sql = ''' INSERT INTO temps(timestamp,sensor,value,units,pk)
@@ -81,3 +100,7 @@ def update_temp_db(conn, temp):
     cur.execute(sql, temp)
     conn.commit()
     return cur.lastrowid
+
+
+if __name__ == "__main__":
+    main()
