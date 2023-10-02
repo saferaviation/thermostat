@@ -46,14 +46,14 @@ def main():
 
 
 
-def determine_state(remote_data, current_state):
-    if (current_state == 'heat on') & (remote_data.temp < config.TEMP_TARGET):
+def determine_state(temp, current_state):
+    if (current_state == 'heat on') & (temp < config.TEMP_TARGET):
         return 'no action'
-    elif (current_state == 'heat on') & (remote_data.temp >= config.TEMP_TARGET):
+    elif (current_state == 'heat on') & (temp >= config.TEMP_TARGET):
         return 'heat off'
-    elif (current_state == 'heat off') & (remote_data.temp < config.TEMP_TARGET):
+    elif (current_state == 'heat off') & (temp < config.TEMP_TARGET):
         return 'heat on'
-    elif (current_state == 'heat off') & (remote_data.temp >= config.TEMP_TARGET):
+    elif (current_state == 'heat off') & (temp >= config.TEMP_TARGET):
         return 'no action'
     else:
         return 'heat off'
