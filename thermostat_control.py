@@ -61,7 +61,7 @@ def determine_state(temp, current_state):
 
 def parse_message(data):
     [timestamp, sensor, value, units, pk] = data.split(',')
-    return [timestamp, sensor, value, units, pk]
+    return [timestamp, sensor, float(value), units, pk]
 
 
 def run_action(action):
