@@ -2,6 +2,7 @@ import RPi.GPIO as GPIO
 import config
 import sqlite3
 import socket
+import time
 
 # Define host and port
 HOST = config.CONTROLLER_IP  # Use your server's IP address or 'localhost' for local testing
@@ -41,6 +42,8 @@ def main():
             client_socket.close()
         else:
             print('no data received')
+            time.sleep(60)
+
 
 
 def determine_state(remote_data, current_state):
