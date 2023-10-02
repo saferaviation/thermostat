@@ -49,15 +49,15 @@ def main():
 
 def determine_state(temp, current_state):
     if (current_state == 'heat on') & (temp < config.TEMP_TARGET):
-        return 'no action'
+        return ['heat on','no action']
     elif (current_state == 'heat on') & (temp >= config.TEMP_TARGET):
-        return 'heat off'
+        return ['heat off', 'heat off']
     elif (current_state == 'heat off') & (temp < config.TEMP_TARGET):
-        return 'heat on'
+        return ['heat on', 'heat on']
     elif (current_state == 'heat off') & (temp >= config.TEMP_TARGET):
-        return 'no action'
+        return ['heat off','no action']
     else:
-        return 'heat off'
+        return ['unknown state', 'heat off']
 
 
 def parse_message(data):
