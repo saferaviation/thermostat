@@ -60,6 +60,9 @@ def determine_state(temp, current_state):
     elif (current_state == 'heat off') & (temp >= config.TEMP_TARGET):
         print('temp above target, heat remaining off')
         return ['heat off','no action']
+    elif (current_state == 'initializing'):
+        print('initialized')
+        return ['heat off', 'heat off']
     else:
         return ['unknown state', 'heat off']
 
