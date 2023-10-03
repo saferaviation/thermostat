@@ -3,6 +3,7 @@ import config
 import sqlite3
 import socket
 import time
+import datetime
 
 # Define host and port
 HOST = config.CONTROLLER_IP  # Use your server's IP address or 'localhost' for local testing
@@ -60,7 +61,7 @@ def determine_state(temp, current_state):
     elif (current_state == 'heat off') & (temp >= config.TEMP_TARGET):
         print('temp above target, heat remaining off')
         return ['heat off','no action']
-    elif (current_state == 'initializing'):
+    elif current_state == 'initializing':
         print('initialized')
         return ['heat off', 'heat off']
     else:
@@ -111,6 +112,21 @@ def update_temp_db(conn, temp):
     cur.execute(sql, temp)
     conn.commit()
     return cur.lastrowid
+
+
+def update_event_db(conn,event):
+    sql = ''' INSERT INTO events(timestamp,event,pk)
+                  VALUES(?,?,?)'''
+    cur = conn.cursor()
+    ts = timestamp()
+    cur.execute(sql, [ts, event, ts + '-' + event])
+    conn.commit()
+    return cur.lastrowid
+
+
+def timestamp():
+    current_datetime = datetime.datetime.now()
+    return current_datetime.strftime('%Y-%m-%d %H:%M:%S')
 
 
 if __name__ == "__main__":
