@@ -61,7 +61,7 @@ def main():
         # Send data to the server
         temp = get_temperature()
         ts = timestamp()
-        pk = ts + ',' + ROOM + ',' + str(temp)
+        pk = ts + '-' + ROOM + '-' + str(temp)
         message = ts + ',' + ROOM + ',' + str(temp) + ',F,' + pk
         print(message)
 
