@@ -63,6 +63,7 @@ def main():
         ts = timestamp()
         pk = ts + ',' + ROOM + ',' + str(temp)
         message = ts + ',' + ROOM + ',' + str(temp) + ',F,' + pk
+        print(message)
 
         client_socket.sendall(message.encode('utf-8'))
 
