@@ -41,7 +41,7 @@ def main():
             operational_state, action = determine_state(remote_data[2], current_state)
             run_action(action)
             current_state = operational_state
-            client_socket.close()
+            #client_socket.close()
         else:
             print('no data received')
             time.sleep(60)
