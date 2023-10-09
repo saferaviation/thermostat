@@ -72,6 +72,7 @@ def determine_state(temp, current_state):
 def parse_message(data):
     split_data = data.split(',')
     if len(split_data) == 5:
+        split_data[2] = float(split_data[2])
         return split_data
     else:
         return [None, None, None, None, None]
