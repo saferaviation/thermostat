@@ -28,23 +28,24 @@ def main():
     setup()
     conn = create_db_connection()
 
+    client_socket, client_address = server_socket.accept()
+    print(f"Accepted connection from {client_address}")
+
     while True:
         # Accept a client connection
-        client_socket, client_address = server_socket.accept()
-        print(f"Accepted connection from {client_address}")
         data = client_socket.recv(1024).decode('utf-8')
 
         if data is not None:
             remote_data = parse_message(data)
             print(remote_data)
-            update_temp_db(conn, remote_data)
-            operational_state, action = determine_state(remote_data[2], current_state)
-            run_action(action)
-            current_state = operational_state
-            #client_socket.close()
+            if remote_data[0] is not None:
+                update_temp_db(conn, remote_data)
+                operational_state, action = determine_state(remote_data[2], current_state)
+                run_action(action)
+                current_state = operational_state
         else:
             print('no data received')
-            time.sleep(60)
+            time.sleep(30)
 
 
 
@@ -69,8 +70,11 @@ def determine_state(temp, current_state):
 
 
 def parse_message(data):
-    [timestamp, sensor, value, units, pk] = data.split(',')
-    return [timestamp, sensor, float(value), units, pk]
+    split_data = data.split(',')
+    if len(split_data) == 5:
+        return split_data
+    else:
+        return [None, None, None, None, None]
 
 
 def run_action(action):

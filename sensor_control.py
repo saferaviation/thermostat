@@ -50,30 +50,43 @@ def timestamp():
 
 def main():
     # Connect to the remote server
+
+    healthy_connection = False
+
+    try:
+        client_socket.connect((HOST, PORT))
+        print(f"Connected to {HOST}:{PORT}")
+        healthy_connection = True
+    except ConnectionRefusedError:
+        print(f"Connection to {HOST}:{PORT} was refused. Ensure the server is running.")
+        exit(1)
+
     while True:
+
+        if healthy_connection is not True:
+            try:
+                client_socket.connect((HOST, PORT))
+                print(f"Connected to {HOST}:{PORT}")
+                healthy_connection = True
+            except ConnectionRefusedError:
+                print(f"Connection to {HOST}:{PORT} was refused. Ensure the server is running.")
+                exit(1)
+
         try:
-            client_socket.connect((HOST, PORT))
-            print(f"Connected to {HOST}:{PORT}")
-        except ConnectionRefusedError:
-            print(f"Connection to {HOST}:{PORT} was refused. Ensure the server is running.")
-            exit(1)
+            # Send data to the server
+            temp = get_temperature()
+            ts = timestamp()
+            pk = ts + '-' + ROOM + '-' + str(temp)
+            message = ts + ',' + ROOM + ',' + str(temp) + ',F,' + pk
+            print(message)
 
-        # Send data to the server
-        temp = get_temperature()
-        ts = timestamp()
-        pk = ts + '-' + ROOM + '-' + str(temp)
-        message = ts + ',' + ROOM + ',' + str(temp) + ',F,' + pk
-        print(message)
+            client_socket.sendall(message.encode('utf-8'))
 
-        client_socket.sendall(message.encode('utf-8'))
-
-        # Receive data from the server
-        data = client_socket.recv(1024)
-        print(f"Received from server: {data.decode('utf-8')}")
-
-        # Close the socket
-        client_socket.close()
-        time.sleep(60)
+            print('sleeping for 1 minute')
+            time.sleep(60)
+        except ConnectionError:
+            print('connection error')
+            healthy_connection = False
 
 
 if __name__ == "__main__":
