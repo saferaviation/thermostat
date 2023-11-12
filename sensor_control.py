@@ -55,6 +55,7 @@ def client():
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
         try:
+            client_socket.connect(server_address)
             temp = get_temperature()
             ts = timestamp()
             pk = ts + '-' + ROOM + '-' + str(temp)
