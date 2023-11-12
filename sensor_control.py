@@ -48,32 +48,14 @@ def timestamp():
     return current_datetime.strftime('%Y-%m-%d %H:%M:%S')
 
 
-def main():
-    # Connect to the remote server
-
-    healthy_connection = False
-
-    try:
-        client_socket.connect((HOST, PORT))
-        print(f"Connected to {HOST}:{PORT}")
-        healthy_connection = True
-    except ConnectionRefusedError:
-        print(f"Connection to {HOST}:{PORT} was refused. Ensure the server is running.")
-        exit(1)
+def client():
+    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_address = ('localhost', 12345)
 
     while True:
-
-        if healthy_connection is not True:
-            try:
-                client_socket.connect((HOST, PORT))
-                print(f"Connected to {HOST}:{PORT}")
-                healthy_connection = True
-            except ConnectionRefusedError:
-                print(f"Connection to {HOST}:{PORT} was refused. Ensure the server is running.")
-                exit(1)
-
         try:
-            # Send data to the server
+            client_socket.connect(server_address)
+
             temp = get_temperature()
             ts = timestamp()
             pk = ts + '-' + ROOM + '-' + str(temp)
@@ -82,12 +64,17 @@ def main():
 
             client_socket.sendall(message.encode('utf-8'))
 
-            print('sleeping for 1 minute')
-            time.sleep(60)
-        except ConnectionError:
-            print('connection error')
-            healthy_connection = False
 
+            # Exchange information here
+            data = client_socket.recv(1024)
+            print(f"Received: {data.decode()}")
+
+            # Close the connection
+            client_socket.close()
+            break
+        except ConnectionRefusedError:
+            print("Server not available. Retrying in X minutes...")
+            time.sleep(60)  # Retry after X minutes
 
 if __name__ == "__main__":
-    main()
+    client()

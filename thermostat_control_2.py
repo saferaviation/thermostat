@@ -1,52 +1,16 @@
+import socket
+import time
 import RPi.GPIO as GPIO
 import config
 import sqlite3
-import socket
-import time
 import datetime
 
 # Define host and port
 HOST = config.CONTROLLER_IP  # Use your server's IP address or 'localhost' for local testing
 PORT = 12345       # Use a port number of your choice
 
-# Create a socket object
-server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-# Bind the socket to the host and port
-server_socket.bind((HOST, PORT))
-
-# Listen for incoming connections
-server_socket.listen()
-
-print(f"Listening on {HOST}:{PORT}")
-
 last_message_timestamp = -9999.99999
-def main():
 
-    current_state = 'initializing'
-
-    setup()
-    conn = create_db_connection()
-
-    client_socket, client_address = server_socket.accept()
-    print(f"Accepted connection from {client_address}")
-
-    while True:
-        # Accept a client connection
-        data = client_socket.recv(1024).decode('utf-8')
-
-        if data is not None:
-            remote_data = parse_message(data)
-            print(remote_data)
-            if remote_data[0] is not None:
-                last_message_timestamp = formatted_time_to_timestamp(remote_data[0])
-                update_temp_db(conn, remote_data)
-                operational_state, action = determine_state(remote_data[2], current_state)
-                run_action(action)
-                current_state = operational_state
-        else:
-            print('no data received')
-            time.sleep(30)
 
 
 
@@ -141,5 +105,45 @@ def formatted_time_to_timestamp(t):
     return timestamp
 
 
+def server():
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_socket.bind(('localhost', 12345))
+    server_socket.listen(1)
+
+    while True:
+        print("Waiting for connection...")
+        client_socket, client_address = server_socket.accept()
+        print(f"Connection from {client_address}")
+
+        data = client_socket.recv(1024).decode('utf-8')
+
+        if data is not None:
+            remote_data = parse_message(data)
+            print(remote_data)
+            if remote_data[0] is not None:
+                last_message_timestamp = formatted_time_to_timestamp(remote_data[0])
+                update_temp_db(conn, remote_data)
+                operational_state, action = determine_state(remote_data[2], current_state)
+                run_action(action)
+                current_state = operational_state
+        else:
+            print('no data received')
+            time.sleep(30)
+
+        # Exchange information here
+        data = "data received!"
+        client_socket.sendall(data.encode())
+
+        # Close the connection
+        client_socket.close()
+        time.sleep(60)  # Sleep for X minutes
+
+
 if __name__ == "__main__":
-    main()
+    current_state = 'initializing'
+    setup()
+    server()
+
+
+
+
