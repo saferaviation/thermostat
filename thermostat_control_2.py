@@ -107,7 +107,7 @@ def formatted_time_to_timestamp(t):
 
 def server():
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_socket.bind(('localhost', 12345))
+    server_socket.bind((HOST, PORT))
     server_socket.listen(1)
 
     while True:
