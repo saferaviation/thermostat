@@ -50,7 +50,7 @@ def timestamp():
 
 def client():
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_address = ('localhost', 12345)
+    server_address = (HOST, PORT)
 
     while True:
         try:
