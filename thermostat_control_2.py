@@ -141,6 +141,7 @@ def server():
 
 if __name__ == "__main__":
     current_state = 'initializing'
+    conn = create_db_connection()
     setup()
     server()
 
