@@ -10,7 +10,7 @@ HOST = config.CONTROLLER_IP  # Use your server's IP address or 'localhost' for l
 PORT = 12345       # Use a port number of your choice
 
 last_message_timestamp = -9999.99999
-
+current_state = 'initializing'
 
 
 
@@ -110,6 +110,7 @@ def server():
     server_socket.bind((HOST, PORT))
     server_socket.listen(1)
 
+
     while True:
         print("Waiting for connection...")
         client_socket, client_address = server_socket.accept()
@@ -140,7 +141,6 @@ def server():
 
 
 if __name__ == "__main__":
-    current_state = 'initializing'
     conn = create_db_connection()
     setup()
     server()

@@ -49,13 +49,12 @@ def timestamp():
 
 
 def client():
-    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_address = (HOST, PORT)
 
     while True:
-        try:
-            client_socket.connect(server_address)
+        client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
+        try:
             temp = get_temperature()
             ts = timestamp()
             pk = ts + '-' + ROOM + '-' + str(temp)
@@ -64,17 +63,24 @@ def client():
 
             client_socket.sendall(message.encode('utf-8'))
 
-
             # Exchange information here
             data = client_socket.recv(1024)
             print(f"Received: {data.decode()}")
 
+        except ConnectionRefusedError:
+            print("Server not available. Retrying in 1 minute...")
+
+        finally:
             # Close the connection
             client_socket.close()
-            break
-        except ConnectionRefusedError:
-            print("Server not available. Retrying in X minutes...")
-            time.sleep(60)  # Retry after X minutes
+
+        # Sleep for 1 minute before the next iteration
+        time.sleep(60)
+
+
+
+
+
 
 if __name__ == "__main__":
     client()
