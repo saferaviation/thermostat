@@ -105,40 +105,45 @@ def formatted_time_to_timestamp(t):
     return timestamp
 
 
-def server():
+def server(timeout_seconds=300):
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.bind((HOST, PORT))
     server_socket.listen(1)
+    server_socket.settimeout(timeout_seconds)
 
 
     while True:
-        print("Waiting for connection...")
-        client_socket, client_address = server_socket.accept()
-        print(f"Connection from {client_address}")
+        try:
+            print("Waiting for connection...")
+            client_socket, client_address = server_socket.accept()
+            print(f"Connection from {client_address}")
 
-        data = client_socket.recv(1024).decode('utf-8')
+            data = client_socket.recv(1024).decode('utf-8')
 
-        if data is not None:
-            remote_data = parse_message(data)
-            print(remote_data)
-            if remote_data[0] is not None:
-                last_message_timestamp = formatted_time_to_timestamp(remote_data[0])
-                update_temp_db(conn, remote_data)
-                operational_state, action = determine_state(remote_data[2], current_state)
-                run_action(action)
-                current_state = operational_state
-        else:
-            print('no data received')
-            time.sleep(30)
+            if data is not None:
+                remote_data = parse_message(data)
+                print(remote_data)
+                if remote_data[0] is not None:
+                    last_message_timestamp = formatted_time_to_timestamp(remote_data[0])
+                    update_temp_db(conn, remote_data)
+                    operational_state, action = determine_state(remote_data[2], current_state)
+                    run_action(action)
+                    current_state = operational_state
+            else:
+                print('no data received')
+                time.sleep(30)
 
-        # Exchange information here
-        data = "data received!"
-        client_socket.sendall(data.encode())
+            # Exchange information here
+            data = "data received!"
+            client_socket.sendall(data.encode())
 
-        # Close the connection
-        client_socket.close()
-        time.sleep(60)  # Sleep for X minutes
-
+            # Close the connection
+            client_socket.close()
+            time.sleep(60)  # Sleep for X minutes
+        except socket.timeout:
+            print(f"No connection received within {timeout_seconds} seconds. Exiting.")
+            heat_off()
+            break
 
 if __name__ == "__main__":
     conn = create_db_connection()

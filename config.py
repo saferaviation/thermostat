@@ -8,4 +8,4 @@ SENSOR_IP = '192.168.86.90'
 
 DB_PATH = '/home/pi/Data/temps.sqlite3'
 
-TEMP_TARGET = 70.0
+TEMP_TARGET = 68.5
